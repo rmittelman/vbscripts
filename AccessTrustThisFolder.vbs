@@ -9,7 +9,7 @@ Const HKEY_LOCAL_MACHINE  = &H80000002
 Const HKEY_USERS          = &H80000003
 Const ACCESS_KEY_PATH     = "Software\Microsoft\Office\{v}.0\Access\Security\Trusted Locations\"
 
-Dim oReg, HIVE, computer
+Dim oReg, HIVE, computer, regKey
 HIVE = HKEY_CURRENT_USER
 computer = "."
 Set oReg = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & computer & "\root\default:StdRegProv")
@@ -17,13 +17,14 @@ Set oReg = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & computer &
 Dim fso
 Set fso = WScript.CreateObject("Scripting.FileSystemObject")
 
-Dim myPath
+Dim myPath, msg, trustedLoc
 myPath = WScript.ScriptFullName
 trustedLoc = fso.GetParentFolderName(myPath)
 
 ' Make sure we're in the right folder!!!!!!!
-If LCase(myPath) <> "c:\pols" And LCase(myPath) <> "c:\mlg" Then
-	VBSMsgBox "This is not being run from proper location. Exitting...", "Error", vbExclamation, 3
+If LCase(trustedLoc) <> "c:\pols" And LCase(trustedLoc) <> "c:\mlg" Then
+	msg = "This is not being run from proper location. Exitting..."
+	VBSMsgBox msg, "Error", vbExclamation, 3
 	WScript.Quit
 End If
 
@@ -35,6 +36,10 @@ regKey = Replace(ACCESS_KEY_PATH, "{v}", "14")
 If RegKeyExists(HIVE, regKey) Then
 	If Not TrustedLocationExists(HIVE, regKey, trustedLoc) Then
 		result = AddTrustedLoc(regKey, trustedLoc, 1)
+		msg = "Folder " & trustedLoc & " was "
+		If result = False Then msg = msg & "NOT "
+		msg = msg & "trusted for Access 2010."
+		VBSMsgBox msg, "Info", vbInformation, 2
 	End If
 End If
 
@@ -43,6 +48,10 @@ regKey = Replace(ACCESS_KEY_PATH, "{v}", "15")
 If RegKeyExists(HIVE, regKey) Then
 	If Not TrustedLocationExists(HIVE, regKey, trustedLoc) Then
 		result = AddTrustedLoc(regKey, trustedLoc, 1)
+		msg = "Folder " & trustedLoc & " was "
+		If result = False Then msg = msg & "NOT "
+		msg = msg & "trusted for Access 2013."
+		VBSMsgBox msg, "Info", vbInformation, 2
 	End If
 End If
 
@@ -51,6 +60,10 @@ regKey = Replace(ACCESS_KEY_PATH, "{v}", "16")
 If RegKeyExists(HIVE, regKey) Then
 	If Not TrustedLocationExists(HIVE, regKey, trustedLoc) Then
 		result = AddTrustedLoc(regKey, trustedLoc, 1)
+		msg = "Folder " & trustedLoc & " was "
+		If result = False Then msg = msg & "NOT "
+		msg = msg & "trusted for Access 2016."
+		VBSMsgBox msg, "Info", vbInformation, 2
 	End If
 End If
 
